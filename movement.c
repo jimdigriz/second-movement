@@ -127,8 +127,8 @@ static bool _movement_update_dst_offset_cache(void) {
 }
 
 static inline void _movement_reset_inactivity_countdown(void) {
-    movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_interval];
-    movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.bit.to_interval];
+    movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.le_interval];
+    movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.to_interval];
 }
 
 static inline void _movement_enable_fast_tick_if_needed(void) {
@@ -219,14 +219,14 @@ void movement_request_tick_frequency(uint8_t freq) {
 }
 
 void movement_illuminate_led(void) {
-    if (movement_state.settings.bit.led_duration != 0b111) {
-        watch_set_led_color_rgb(movement_state.settings.bit.led_red_color | movement_state.settings.bit.led_red_color << 4,
-                                movement_state.settings.bit.led_green_color | movement_state.settings.bit.led_green_color << 4,
-                                movement_state.settings.bit.led_blue_color | movement_state.settings.bit.led_blue_color << 4);
-        if (movement_state.settings.bit.led_duration == 0) {
+    if (movement_state.settings.led_duration != 0b111) {
+        watch_set_led_color_rgb(movement_state.settings.led_red_color | movement_state.settings.led_red_color << 4,
+                                movement_state.settings.led_green_color | movement_state.settings.led_green_color << 4,
+                                movement_state.settings.led_blue_color | movement_state.settings.led_blue_color << 4);
+        if (movement_state.settings.led_duration == 0) {
             movement_state.light_ticks = 1;
         } else {
-            movement_state.light_ticks = (movement_state.settings.bit.led_duration * 2 - 1) * 128;
+            movement_state.light_ticks = (movement_state.settings.led_duration * 2 - 1) * 128;
         }
         _movement_enable_fast_tick_if_needed();
     }
@@ -253,7 +253,7 @@ bool movement_default_loop_handler(movement_event_t event) {
             movement_illuminate_led();
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            if (movement_state.settings.bit.led_duration == 0) {
+            if (movement_state.settings.led_duration == 0) {
                 movement_force_led_off();
             }
             break;
@@ -388,15 +388,15 @@ int32_t movement_get_current_timezone_offset_for_zone(uint8_t zone_index) {
 }
 
 int32_t movement_get_current_timezone_offset(void) {
-    return movement_get_current_timezone_offset_for_zone(movement_state.settings.bit.time_zone);
+    return movement_get_current_timezone_offset_for_zone(movement_state.settings.time_zone);
 }
 
 int32_t movement_get_timezone_index(void) {
-    return movement_state.settings.bit.time_zone;
+    return movement_state.settings.time_zone;
 }
 
 void movement_set_timezone_index(uint8_t value) {
-    movement_state.settings.bit.time_zone = value;
+    movement_state.settings.time_zone = value;
 }
 
 watch_date_time_t movement_get_utc_date_time(void) {
@@ -425,79 +425,79 @@ void movement_set_local_date_time(watch_date_time_t date_time) {
 }
 
 bool movement_button_should_sound(void) {
-    return movement_state.settings.bit.button_should_sound;
+    return movement_state.settings.button_should_sound;
 }
 
 void movement_set_button_should_sound(bool value) {
-    movement_state.settings.bit.button_should_sound = value;
+    movement_state.settings.button_should_sound = value;
 }
 
 watch_buzzer_volume_t movement_button_volume(void) {
-    return movement_state.settings.bit.button_volume;
+    return movement_state.settings.button_volume;
 }
 
 void movement_set_button_volume(watch_buzzer_volume_t value) {
-    movement_state.settings.bit.button_volume = value;
+    movement_state.settings.button_volume = value;
 }
 
 movement_clock_mode_t movement_clock_mode_24h(void) {
-    return movement_state.settings.bit.clock_mode_24h ? MOVEMENT_CLOCK_MODE_24H : MOVEMENT_CLOCK_MODE_12H;
+    return movement_state.settings.clock_mode_24h ? MOVEMENT_CLOCK_MODE_24H : MOVEMENT_CLOCK_MODE_12H;
 }
 
 void movement_set_clock_mode_24h(movement_clock_mode_t value) {
-    movement_state.settings.bit.clock_mode_24h = (value == MOVEMENT_CLOCK_MODE_24H);
+    movement_state.settings.clock_mode_24h = (value == MOVEMENT_CLOCK_MODE_24H);
 }
 
 bool movement_use_imperial_units(void) {
-    return movement_state.settings.bit.use_imperial_units;
+    return movement_state.settings.use_imperial_units;
 }
 
 void movement_set_use_imperial_units(bool value) {
-    movement_state.settings.bit.use_imperial_units = value;
+    movement_state.settings.use_imperial_units = value;
 }
 
 uint8_t movement_get_fast_tick_timeout(void) {
-    return movement_state.settings.bit.to_interval;
+    return movement_state.settings.to_interval;
 }
 
 void movement_set_fast_tick_timeout(uint8_t value) {
-    movement_state.settings.bit.to_interval = value;
+    movement_state.settings.to_interval = value;
 }
 
 uint8_t movement_get_low_energy_timeout(void) {
-    return movement_state.settings.bit.le_interval;
+    return movement_state.settings.le_interval;
 }
 
 void movement_set_low_energy_timeout(uint8_t value) {
-    movement_state.settings.bit.le_interval = value;
+    movement_state.settings.le_interval = value;
 }
 
 movement_color_t movement_backlight_color(void) {
     return (movement_color_t) {
-        .red = movement_state.settings.bit.led_red_color,
-        .green = movement_state.settings.bit.led_green_color,
-        .blue = movement_state.settings.bit.led_blue_color
+        .red = movement_state.settings.led_red_color,
+        .green = movement_state.settings.led_green_color,
+        .blue = movement_state.settings.led_blue_color
     };
 }
 
 void movement_set_backlight_color(movement_color_t color) {
-    movement_state.settings.bit.led_red_color = color.red;
-    movement_state.settings.bit.led_green_color = color.green;
-    movement_state.settings.bit.led_blue_color = color.blue;
+    movement_state.settings.led_red_color = color.red;
+    movement_state.settings.led_green_color = color.green;
+    movement_state.settings.led_blue_color = color.blue;
 }
 
 uint8_t movement_get_backlight_dwell(void) {
-    return movement_state.settings.bit.led_duration;
+    return movement_state.settings.led_duration;
 }
 
 void movement_set_backlight_dwell(uint8_t value) {
-    movement_state.settings.bit.led_duration = value;
+    movement_state.settings.led_duration = value;
 }
 
 void movement_store_settings(void) {
     movement_settings_t old_settings;
     filesystem_read_file("settings.u32", (char *)&old_settings, sizeof(movement_settings_t));
-    if (movement_state.settings.reg != old_settings.reg) {
+    if (memcmp((void *)&movement_state.settings, &old_settings, sizeof(movement_settings_t))) {
         filesystem_write_file("settings.u32", (char *)&movement_state.settings, sizeof(movement_settings_t));
     }
 }
@@ -628,45 +628,45 @@ void app_init(void) {
 
     bool settings_file_exists = filesystem_file_exists("settings.u32");
     movement_settings_t maybe_settings;
-    if (settings_file_exists && maybe_settings.bit.version == 0) {
+    if (settings_file_exists && maybe_settings.version == 0) {
         filesystem_read_file("settings.u32", (char *) &maybe_settings, sizeof(movement_settings_t));
     }
 
-    if (settings_file_exists && maybe_settings.bit.version == 0) {
+    if (settings_file_exists && maybe_settings.version == 0) {
         // If settings file exists and has a valid version, restore it!
-        movement_state.settings.reg = maybe_settings.reg;
+        memcpy((void *)&movement_state.settings, &maybe_settings, sizeof(movement_settings_t));
     } else {
         // Otherwise set default values.
-        movement_state.settings.bit.version = 0;
-        movement_state.settings.bit.clock_mode_24h = MOVEMENT_DEFAULT_24H_MODE;
-        movement_state.settings.bit.time_zone = UTZ_UTC;
-        movement_state.settings.bit.led_red_color = MOVEMENT_DEFAULT_RED_COLOR;
-        movement_state.settings.bit.led_green_color = MOVEMENT_DEFAULT_GREEN_COLOR;
+        movement_state.settings.version = 0;
+        movement_state.settings.clock_mode_24h = MOVEMENT_DEFAULT_24H_MODE;
+        movement_state.settings.time_zone = UTZ_UTC;
+        movement_state.settings.led_red_color = MOVEMENT_DEFAULT_RED_COLOR;
+        movement_state.settings.led_green_color = MOVEMENT_DEFAULT_GREEN_COLOR;
     #if defined(WATCH_BLUE_TCC_CHANNEL) && !defined(WATCH_GREEN_TCC_CHANNEL)
         // If there is a blue LED but no green LED, this is a blue Special Edition board.
         // In the past, the "green color" showed up as the blue color on the blue board.
         if (MOVEMENT_DEFAULT_RED_COLOR == 0 && MOVEMENT_DEFAULT_BLUE_COLOR == 0) {
             // If the red color is 0 and the blue color is 0, we'll fall back to the old
             // behavior, since otherwise there would be no default LED color.
-            movement_state.settings.bit.led_blue_color = MOVEMENT_DEFAULT_GREEN_COLOR;
+            movement_state.settings.led_blue_color = MOVEMENT_DEFAULT_GREEN_COLOR;
         } else {
             // however if either the red or blue color is nonzero, we'll assume the user
             // has used the new defaults and knows what color they want. this could be red
             // if blue is 0, or a custom color if both are nonzero.
-            movement_state.settings.bit.led_blue_color = MOVEMENT_DEFAULT_BLUE_COLOR;
+            movement_state.settings.led_blue_color = MOVEMENT_DEFAULT_BLUE_COLOR;
         }
     #else
-        movement_state.settings.bit.led_blue_color = MOVEMENT_DEFAULT_BLUE_COLOR;
+        movement_state.settings.led_blue_color = MOVEMENT_DEFAULT_BLUE_COLOR;
     #endif
-        movement_state.settings.bit.button_should_sound = MOVEMENT_DEFAULT_BUTTON_SOUND;
-        movement_state.settings.bit.button_volume = MOVEMENT_DEFAULT_BUTTON_VOLUME;
-        movement_state.settings.bit.to_interval = MOVEMENT_DEFAULT_TIMEOUT_INTERVAL;
+        movement_state.settings.button_should_sound = MOVEMENT_DEFAULT_BUTTON_SOUND;
+        movement_state.settings.button_volume = MOVEMENT_DEFAULT_BUTTON_VOLUME;
+        movement_state.settings.to_interval = MOVEMENT_DEFAULT_TIMEOUT_INTERVAL;
 #ifdef MOVEMENT_LOW_ENERGY_MODE_FORBIDDEN
-        movement_state.settings.bit.le_interval = 0;
+        movement_state.settings.le_interval = 0;
 #else
-        movement_state.settings.bit.le_interval = MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL;
+        movement_state.settings.le_interval = MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL;
 #endif
-        movement_state.settings.bit.led_duration = MOVEMENT_DEFAULT_LED_DURATION;
+        movement_state.settings.led_duration = MOVEMENT_DEFAULT_LED_DURATION;
 
         movement_store_settings();
     }
@@ -694,8 +694,6 @@ void app_wake_from_backup(void) {
 }
 
 void app_setup(void) {
-    watch_store_backup_data(movement_state.settings.reg, 0);
-
     static bool is_first_launch = true;
 
     if (is_first_launch) {
@@ -715,7 +713,7 @@ void app_setup(void) {
         });
         for (int i = 0; i < NUM_ZONE_NAMES; i++) {
             if (movement_get_current_timezone_offset_for_zone(i) == time_zone_offset * 60) {
-                movement_state.settings.bit.time_zone = i;
+                movement_state.settings.time_zone = i;
                 break;
             }
         }
@@ -838,9 +836,9 @@ bool app_loop(void) {
     bool woke_up_for_buzzer = false;
 
     if (movement_state.watch_face_changed) {
-        if (movement_state.settings.bit.button_should_sound) {
+        if (movement_state.settings.button_should_sound) {
             // low note for nonzero case, high note for return to watch_face 0
-            watch_buzzer_play_note_with_volume(movement_state.next_face_idx ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50, movement_state.settings.bit.button_volume);
+            watch_buzzer_play_note_with_volume(movement_state.next_face_idx ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50, movement_state.settings.button_volume);
         }
         wf->resign(watch_face_contexts[movement_state.current_face_idx]);
         movement_state.current_face_idx = movement_state.next_face_idx;
